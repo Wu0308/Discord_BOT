@@ -1,0 +1,20 @@
+{
+  "name": "discord-music-bot",
+  "version": "1.0.0",
+  "description": "多功能 Discord 音樂機器人 - 支援 YouTube 播放、佇列管理、音量控制等",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js",
+    "deploy": "node deployCommands.js"
+  },
+  "dependencies": {
+    "@discordjs/opus": "^0.10.0",
+    "@discordjs/voice": "^0.19.2",
+    "discord.js": "^14.18.0",
+    "dotenv": "^16.4.7",
+    "tweetnacl": "^1.0.3",
+    "yt-search": "^2.13.1"
+  }
+}
