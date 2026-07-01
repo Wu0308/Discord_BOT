@@ -92,6 +92,7 @@ client.on('interactionCreate', async (interaction) => {
       case 'leave':    await handleLeave(interaction); break;
       case 'shuffle':  await handleShuffle(interaction); break;
       case 'remove':   await handleRemove(interaction); break;
+      case 'speed':    await handleSpeed(interaction); break;
       case 'diagnose': await handleDiagnose(interaction); break;
       case 'help':     await handleHelp(interaction); break;
       case 'ping':     await handlePing(interaction); break;
@@ -157,7 +158,7 @@ async function handlePlay(interaction) {
       .setTimestamp();
     await interaction.editReply({ embeds: [embed] }).catch(() => {});
   } else {
-    queueManager.addSong(guildId, song);
+    // 直接播放，不加入 queue.songs（避免播完後重複播放同一首）
     await interaction.editReply(`✅ 已開始播放 **${song.title}**，請稍候...`).catch(() => {});
     await musicPlayer.playSong(guildId, song, interaction.channel);
   }
@@ -282,9 +283,10 @@ async function handleQueue(interaction) {
   embed.addFields(
     { name: '🔊 音量', value: `${status.volume}%`, inline: true },
     { name: '🔁 循環', value: loopStatus, inline: true },
+    { name: '⚡ 速度', value: `${queue.speed}x`, inline: true },
   );
 
-  embed.setFooter({ text: `🔊 音量: ${status.volume}% | ${loopStatus}` });
+  embed.setFooter({ text: `🔊 音量: ${status.volume}% | ⚡ 速度: ${queue.speed}x | ${loopStatus}` });
   await interaction.editReply({ embeds: [embed] });
 }
 
@@ -309,6 +311,7 @@ async function handleNowPlaying(interaction) {
       { name: '⏱️ 時長', value: status.currentSong.duration, inline: true },
       { name: '👤 要求者', value: status.currentSong.requestedBy, inline: true },
       { name: '🔊 音量', value: `${status.volume}%`, inline: true },
+      { name: '⚡ 速度', value: `${queueManager.get(guildId).speed}x`, inline: true },
       { name: '📋 佇列', value: `還有 ${status.queueLength} 首`, inline: true },
       { name: '\u200B', value: musicPlayer.getProgress(guildId) },
     )
@@ -358,6 +361,34 @@ async function handleVolume(interaction) {
   const bar = '█'.repeat(filled) + '▬'.repeat(barLen - filled);
 
   await interaction.editReply(`${icon} 音量已設定為 **${volume}%**\n\`${bar}\``);
+}
+
+/**
+ * /speed - 調整播放速度
+ */
+async function handleSpeed(interaction) {
+  await interaction.deferReply().catch(() => {});
+  const rate = interaction.options.getNumber('rate');
+  const guildId = interaction.guildId;
+
+  // 檢查速度範圍
+  if (rate < 0.25 || rate > 3.0) {
+    return interaction.editReply('❌ 播放速度必須在 **0.25 ~ 3.0** 之間。');
+  }
+
+  const queue = queueManager.get(guildId);
+  if (!queue.connection) {
+    return interaction.editReply('❌ 我不在語音頻道中，請先用 `/play` 播放歌曲。');
+  }
+
+  const speed = await musicPlayer.setSpeed(guildId, rate, interaction.channel);
+
+  // 速度 icon
+  let icon = '🐢';
+  if (speed > 1.0) icon = '🐇';
+  else if (speed === 1.0) icon = '⏺️';
+
+  await interaction.editReply(`${icon} 播放速度已設定為 **${speed}x**`);
 }
 
 /**
@@ -432,7 +463,8 @@ async function handleHelp(interaction) {
           '`/stop` - 停止播放並清空佇列\n' +
           '`/pause` - 暫停播放\n' +
           '`/resume` - 恢復播放\n' +
-          '`/volume <0-100>` - 調整音量',
+          '`/volume <0-100>` - 調整音量\n' +
+          '`/speed <0.25-3.0>` - 調整播放速度',
         inline: false,
       },
       {
