@@ -13,6 +13,7 @@
 | `/stop` | ⏹️ 停止播放並清空佇列 |
 | `/pause` | ⏸️ 暫停 |
 | `/resume` | ▶️ 繼續 |
+| `/speed <0.25~3.0>` | ⏩ 調整播放速度 (0.25x ~ 3.0x) |
 | `/queue` | 📋 顯示播放佇列 |
 | `/nowplaying` | 🎶 目前播放資訊（含進度條） |
 | `/loop <模式>` | 🔁 循環模式：關閉 / 單曲 / 佇列 |
@@ -119,9 +120,10 @@ npm start
 Discor_BOT/
 ├── index.js              # 主程式（事件處理、指令路由）
 ├── config.js             # 設定（Token、音量、顏色等）
-├── musicPlayer.js        # 音樂播放器（語音連線、yt-dlp 串流、播放控制）
-├── queueManager.js       # 佇列管理器（歌曲佇列、循環模式）
+├── musicPlayer.js        # 音樂播放器（語音連線、yt-dlp 串流、播放控制、變速）
+├── queueManager.js       # 佇列管理器（歌曲佇列、循環模式、速度狀態）
 ├── deployCommands.js     # 斜線指令註冊
+├── logger.js             # 統一除錯輸出模組
 ├── .env                  # 環境變數（不入版控）
 ├── package.json
 └── README.md
