@@ -3,6 +3,7 @@
  * 執行方式：node diagnose_all.mjs
  */
 import 'dotenv/config';
+import { execSync } from 'child_process';
 import { config } from './config.js';
 
 console.log('========================================');
@@ -37,29 +38,44 @@ console.log('------------------------');
 const deps = [
   ['discord.js', 'discord.js'],
   ['@discordjs/voice', '@discordjs/voice'],
-  ['play-dl', 'play-dl'],
-  ['ffmpeg-static', 'ffmpeg-static'],
+  ['yt-search', 'yt-search'],
+  ['yt-dlp (CLI)', null],
 ];
 
 for (const [name, pkg] of deps) {
   try {
-    const mod = await import(pkg);
-    const ver = mod.version || '✅';
-    console.log(`  ✅ ${name} ${ver}`);
+    if (pkg) {
+      const mod = await import(pkg);
+      const ver = mod.version || '✅';
+      console.log(`  ✅ ${name} ${ver}`);
+    } else {
+      // yt-dlp CLI 檢查
+      const ytdlpOut = execSync('yt-dlp --version', { encoding: 'utf8' }).trim();
+      console.log(`  ✅ ${name} ${ytdlpOut}`);
+    }
   } catch (e) {
     console.log(`  ❌ ${name} — ${e.message}`);
   }
 }
 
-// 3. 檢查 ffmpeg
-console.log('\n【3】🎬 FFmpeg 檢查（音訊解碼用）');
+// 3. 檢查 ffmpeg 與 yt-dlp
+console.log('\n【3】🎬 FFmpeg & yt-dlp 檢查');
 console.log('------------------------');
 
+// 檢查 ffmpeg（Windows 通常內建於 yt-dlp 或系統 PATH）
 try {
-  const ffmpegPath = (await import('ffmpeg-static')).default;
-  console.log(`  ✅ ffmpeg 路徑: ${ffmpegPath}`);
-} catch (e) {
-  console.log(`  ❌ ffmpeg-static 載入失敗: ${e.message}`);
+  execSync('ffmpeg -version', { stdio: 'ignore' });
+  console.log('  ✅ ffmpeg 可用（於系統 PATH）');
+} catch {
+  console.log('  ⚠️ ffmpeg 未在 PATH 中找到（yt-dlp 內建版本可能仍可運作）');
+}
+
+// 檢查 yt-dlp
+try {
+  const ytdlpOut = execSync('yt-dlp --version', { encoding: 'utf8' }).trim();
+  console.log(`  ✅ yt-dlp 版本: ${ytdlpOut}`);
+} catch {
+  console.log('  ❌ yt-dlp 未安裝！請執行：pip install -U yt-dlp');
 }
 
 // 4. 檢查 Node.js 版本相容性
@@ -68,7 +84,11 @@ console.log('------------------------');
 console.log(`  Node.js: ${process.version}`);
 console.log(`  平台: ${process.platform} ${process.arch}`);
 
-if (parseInt(process.version.slice(1)) >= 20) {
+const majorVer = parseInt(process.version.slice(1));
+if (majorVer >= 24) {
+  console.log(`  ⚠️ Node.js v24+ 可能與 @discordjs/voice 有 UDP 相容性問題`);
+  console.log(`     如果語音連線失敗，建議降版到 Node.js v22 LTS`);
+} else if (majorVer >= 20) {
   console.log(`  ⚠️ Node.js v20+ 可能與 @discordjs/voice 有相容性問題`);
   console.log(`     如果持續失敗，建議降版到 Node.js v18 LTS`);
 }

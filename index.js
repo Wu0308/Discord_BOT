@@ -33,7 +33,7 @@ const client = new Client({
 });
 
 // ===== 機器人啟動事件 =====
-client.once('clientReady', async () => {
+client.once('ready', async () => {
   console.log(`✅ 機器人已上線！`);
   console.log(`🤖 名稱：${client.user.tag}`);
   console.log(`🆔 ID：${client.user.id}`);

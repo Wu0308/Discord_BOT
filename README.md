@@ -122,7 +122,9 @@ Discor_BOT/
 ├── musicPlayer.js        # 音樂播放器（語音連線、yt-dlp 串流、播放控制）
 ├── queueManager.js       # 佇列管理器（歌曲佇列、循環模式）
 ├── deployCommands.js     # 斜線指令註冊
+├── diagnose_all.mjs      # 完整診斷腳本（檢查 .env、依賴、ffmpeg、防火牆等）
 ├── .env                  # 環境變數（不入版控）
+├── .env.example          # 環境變數範例
 ├── package.json
 └── README.md
 ```
