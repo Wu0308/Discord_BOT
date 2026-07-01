@@ -87,6 +87,18 @@ const commands = [
     ],
   },
   {
+    name: 'speed',
+    description: '⏩ 調整播放速度 (0.25 ~ 3.0)',
+    options: [
+      {
+        type: ApplicationCommandOptionType.Number,
+        name: 'rate',
+        description: '播放速度倍率 (0.25/0.5/0.75/1.0/1.25/1.5/1.75/2.0/2.5/3.0)',
+        required: true,
+      },
+    ],
+  },
+  {
     name: 'leave',
     description: '👋 離開語音頻道並清空佇列',
   },
@@ -171,7 +183,7 @@ async function deploy() {
 
     console.log(`📋 成功註冊 ${data.length} 個斜線指令：`);
     const categories = {
-      '🎵 音樂播放': ['play', 'skip', 'stop', 'pause', 'resume'],
+      '🎵 音樂播放': ['play', 'skip', 'stop', 'pause', 'resume', 'speed'],
       '📋 佇列管理': ['queue', 'nowplaying', 'shuffle', 'remove', 'loop', 'volume'],
       '⚙️ 其他': ['leave', 'help', 'ping', 'diagnose'],
     };

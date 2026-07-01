@@ -23,9 +23,12 @@ class QueueManager {
         isLooping: false,     // 單曲循環
         isLoopQueue: false,   // 佇列循環
         volume: 50,
+        speed: 1.0,           // 播放速度 (0.25 ~ 3.0)
         connection: null,
         player: null,
         resource: null,
+        ytdlpProcess: null,
+        ffmpegProcess: null,
         timeout: null,
         startTime: 0,
         pausedTime: 0,
@@ -111,6 +114,7 @@ class QueueManager {
       isLooping: queue.isLooping,
       isLoopQueue: queue.isLoopQueue,
       volume: queue.volume,
+      speed: queue.speed,
     };
   }
 }
